@@ -10,6 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace WPF2
 {
@@ -18,8 +19,11 @@ namespace WPF2
     /// </summary>
     public partial class MainWindow : Window
     {
-        User User1 = new User(false, "User1");
-        User User2 = new User(false, "User2");
+        private bool MessageTurn { get; set; } = false;
+
+        public DispatcherTimer dispatcherTimer = new DispatcherTimer();
+        public User User1 { get; private set; } = new User(false, "User1");
+        public User Client { get; private set; } = new User(false, "Client");
         public ObservableCollection<Message> Messages { get; private set; } = new ObservableCollection<Message>();
         //ICommand SendMessageCommand = new SendMessageCommand();
         //ICommand NewLineCommand = new NewLineCommand();
@@ -27,16 +31,26 @@ namespace WPF2
         {
             InitializeComponent();
             DataContext = this;
-            Messages.Add(new Message("Hello, try to respond me", User1));
-            Messages.Add(new Message("Here is the response!", User2));
+            Messages.Add(new Message(User1, User1.Equals(Client),false ,"Hello! How are you?"));
+            Messages.Add(new Message(Client, Client.Equals(Client), false, "Hello, good! What a nice day!"));
+            dispatcherTimer.Tick += DispatcherTimer_Tick;
+            dispatcherTimer.Interval = TimeSpan.FromMinutes(1);
+            dispatcherTimer.Start();
+        }
+        private void DispatcherTimer_Tick(object? sender, EventArgs e)
+        {
+            foreach (var message in Messages)
+            {
+                message.UpdateTimestampDisplay();
+            }
         }
 
         private void User_Connect(object sender, RoutedEventArgs e)
         {
-            User2.Status = true;
+            Client.Status = true;
             ConnectMenuItem.IsEnabled = false;
             DisconnectMenuItem.IsEnabled = true;
-            Messages.Add(new Message(true, "", User2));
+            Messages.Add(new Message(Client, Client.Equals(Client), true, ""));
         }
 
         private void Show_MessageBox(object sender, RoutedEventArgs e)
@@ -45,10 +59,10 @@ namespace WPF2
         }
         private void User_Disconnect(object sender, RoutedEventArgs e)
         {
-            User2.Status = false;
+            Client.Status = false;
             DisconnectMenuItem.IsEnabled = false;
             ConnectMenuItem.IsEnabled = true;
-            Messages.Add(new Message(true, "", User2));
+            Messages.Add(new Message(null, Client.Equals(Client), true, ""));
         }
         private void App_Exit(object sender, RoutedEventArgs e)
         {
@@ -71,10 +85,11 @@ namespace WPF2
 
         private void SendMessage(object sender, RoutedEventArgs e)
         {
-            if(Messages.Count % 2 == 0)
-                Messages.Add(new Message(InputTextBox.Text, User1));
+            if (!MessageTurn)
+                Messages.Add(new Message(User1, User1.Equals(Client), false, InputTextBox.Text));
             else
-                Messages.Add(new Message(InputTextBox.Text, User2));
+                Messages.Add(new Message(Client, Client.Equals(Client), false, InputTextBox.Text));
+            MessageTurn = !MessageTurn;
             InputTextBox.Text = string.Empty;
         }
     }

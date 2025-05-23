@@ -17,12 +17,12 @@
         <Style x:Key="ClientMessageStyle" TargetType="ListViewItem">
             <Setter Property="VerticalAlignment" Value="Top"></Setter>
             <Style.Triggers>
-                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                <DataTrigger Binding="{Binding IsFromClient}" Value="false">
                     <Setter Property="HorizontalAlignment" Value="Left"/>
-                </Trigger>
-                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsFromClient}" Value="true">
                     <Setter Property="HorizontalAlignment" Value="Right"></Setter>
-                </Trigger>
+                </DataTrigger>
             </Style.Triggers>
         </Style>
 
@@ -41,7 +41,8 @@
         <DataTemplate x:Key="ClientMessageTemplate" DataType="ListViewItem">
             <Border Background="DarkOrange" CornerRadius="8" 
                     Margin="20, 2"
-                    HorizontalAlignment="Stretch">
+                    HorizontalAlignment="Stretch"
+                    ToolTip="{Binding Timestamp}">
                 <StackPanel Orientation="Vertical">
                     <TextBlock FontWeight="Bold" 
                                Style="{StaticResource ResourceKey=MessageText}"
@@ -55,7 +56,7 @@
                                TextWrapping="Wrap">
                     </TextBlock>
                     <TextBlock Style="{StaticResource ResourceKey=TimestampStyle}"
-                               Text="{Binding Timestamp}"
+                               Text="{Binding TimestampDisplay}"
                                Margin="4,2">
                     </TextBlock>
                 </StackPanel>
@@ -63,7 +64,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="SystemMessageTemplate" DataType="ListViewItem">
-            <TextBlock Foreground="DarkGray" FontWeight="Bold">
+            <TextBlock Foreground="DarkGray" FontWeight="Bold" Margin="4,2">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
                         <Setter Property="Text" Value="Status Unknown"/>
