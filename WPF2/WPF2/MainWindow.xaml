@@ -6,35 +6,46 @@
         xmlns:local="clr-namespace:WPF2"
         mc:Ignorable="d"
         Title="MainWindow" Height="480" Width="800"
-        MinWidth="420" MinHeight="240">
+        MinWidth="420" MinHeight="240"
+        WindowStartupLocation="CenterScreen">
     <Window.Resources>
-        <Style x:Key="Connect/Disconnect" TargetType="MenuItem">
+        <Style x:Key="MessageText" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style x:Key="MessageListViewStyle" TargetType="ListViewItem">
+            <Setter Property="VerticalAlignment" Value="Top"></Setter>
+            <Style.Triggers>
+                <Trigger Property="ItemsControl.AlternationIndex" Value="0">
+                    <Setter Property="HorizontalAlignment" Value="Left"/>
+                </Trigger>
+                <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                    <Setter Property="HorizontalAlignment" Value="Right"></Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="TimestampStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="Gray"/>
+            <Setter Property="FontSize" Value="5"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+
             <!--Style.Triggers>
-                <Trigger Property="IsSelected" Value="True">
-                    <Setter Property="Background" Value="#FFFDCF6C"/>
-            </Style.Triggers--> 
+                <DataTrigger Binding="{Binding Timestamp} Value >
+                </DataTrigger> 
+            </Style.Triggers-->
         </Style>
-        <Style TargetType="ListViewItem">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ListViewItem">
-                        <Border Background="DarkOrange" CornerRadius="8">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding }"></TextBlock>
-                            </StackPanel>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <DataTemplate x:Key="MessageBubbleTemplate" DataType="ListViewItem">
+            <Border Background="DarkOrange" CornerRadius="8" 
+                    Width="Auto" Height="Auto">
+                <StackPanel Orientation="Horizontal">
+                    <!--TextBlock FontWeight="Bold" Text="{Binding User.Username}"></TextBlock-->
+                    <TextBlock Style="{StaticResource ResourceKey=MessageText}"
+                               HorizontalAlignment="Center"
+                               Text="{Binding MessageContent}"></TextBlock>
+                    <!--TextBlock Style="{StaticResource ResourceKey=TimestampStyle}" Text="{Binding MessageTime}"></TextBlock-->
+                </StackPanel>
+            </Border>
+        </DataTemplate>
     </Window.Resources>
-    <Window.InputBindings>
-        <KeyBinding Command="{Binding SendCommand}"
-              Key="Return" />
-        <KeyBinding Command="{Binding NewLineCommand} CommandParameter={}}"
-        Key="Return" 
-        Modifiers="Shift"/>
-    </Window.InputBindings>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*"></RowDefinition>
@@ -52,13 +63,15 @@
             </MenuItem>
         </Menu>
         <StackPanel Grid.Row="1" Orientation="Vertical">
-            <!--Label Content="{Binding Status}"></Label-->
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ListView Grid.Row="1" HorizontalContentAlignment="Center" ItemsSource="{Binding}">
-                    
+                <ListView Grid.Row="1"
+                          HorizontalContentAlignment="Center"
+                          ItemsSource="{Binding Messages}"
+                          ItemTemplate="{StaticResource ResourceKey=MessageBubbleTemplate}"
+                          AlternationCount="2"
+                          ItemContainerStyle="{StaticResource ResourceKey=MessageListViewStyle}">
                 </ListView>
             </ScrollViewer>
-            <!--Label Content="{Binding Status}"></Label-->
         </StackPanel>
         <Grid Grid.Row="2" Margin="0,0,0,2">
             <Grid.RowDefinitions>
@@ -70,9 +83,18 @@
                 <ColumnDefinition Width="1*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <ScrollViewer Margin="5,0,0,0" Grid.Row="0" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
-                <TextBox Height="Auto" TextWrapping="Wrap"></TextBox>
+                <TextBox Name ="InputTextBox" Height="Auto" TextWrapping="Wrap" AcceptsReturn="True" PreviewKeyDown="KeyDownHandler">
+                </TextBox>
             </ScrollViewer>
             <Button Margin="5,0" Grid.Row="0" Grid.Column="1" Height="Auto">Send</Button>
         </Grid>
     </Grid>
 </Window>
+
+<!--TextBox.InputBindings>
+    <KeyBinding Command="{Binding SendMessageCommand}"
+         Key="Return" />
+    <KeyBinding Command="{Binding NewLineCommand}"
+         Key="Return" 
+         Modifiers="Shift"/>
+</TextBox.InputBindings-->

@@ -9,5 +9,10 @@ namespace WPF2;
 public class User
 {
     public bool Status { get; set; } = false;
-
+    public string Username { get; set; }
+    public User(bool status, string username)
+    {
+        Status = status;
+        Username = username;
+    }
 }

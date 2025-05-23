@@ -7,16 +7,10 @@ using System.Windows.Input;
 
 namespace WPF2;
 
-public class NewLineCommand : ICommand
+public class NewLineCommand : CustomCommand
 {
-    public event EventHandler? CanExecuteChanged;
-    public bool CanExecute(object? parameter)
+    public NewLineCommand(Action<object?> executeCommand, Func<object?, bool> canExecuteCommand): base(executeCommand, canExecuteCommand)
     {
-        return true;
-    }
-
-    public void Execute(object? parameter)
-    {
-        
+       
     }
 }
