@@ -1,0 +1,78 @@
+﻿<Window x:Class="WPF2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPF2"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="480" Width="800"
+        MinWidth="420" MinHeight="240">
+    <Window.Resources>
+        <Style x:Key="Connect/Disconnect" TargetType="MenuItem">
+            <!--Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background" Value="#FFFDCF6C"/>
+            </Style.Triggers--> 
+        </Style>
+        <Style TargetType="ListViewItem">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListViewItem">
+                        <Border Background="DarkOrange" CornerRadius="8">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{Binding }"></TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding SendCommand}"
+              Key="Return" />
+        <KeyBinding Command="{Binding NewLineCommand} CommandParameter={}}"
+        Key="Return" 
+        Modifiers="Shift"/>
+    </Window.InputBindings>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Menu Grid.Row="0">
+            <MenuItem Header="File">
+                <MenuItem Name="ConnectMenuItem" Header="Connect" Click="User_Connect" IsEnabled="True"></MenuItem>
+                <MenuItem Name="DisconnectMenuItem" Header="Disconnect" Click="User_Disconnect" IsEnabled="False"></MenuItem>
+                <MenuItem Header="Exit" Click="App_Exit"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Help">
+                <MenuItem Header="About" Click="Show_MessageBox"></MenuItem>
+            </MenuItem>
+        </Menu>
+        <StackPanel Grid.Row="1" Orientation="Vertical">
+            <!--Label Content="{Binding Status}"></Label-->
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ListView Grid.Row="1" HorizontalContentAlignment="Center" ItemsSource="{Binding}">
+                    
+                </ListView>
+            </ScrollViewer>
+            <!--Label Content="{Binding Status}"></Label-->
+        </StackPanel>
+        <Grid Grid.Row="2" Margin="0,0,0,2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto">
+                </RowDefinition>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="7*"></ColumnDefinition>
+                <ColumnDefinition Width="1*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer Margin="5,0,0,0" Grid.Row="0" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
+                <TextBox Height="Auto" TextWrapping="Wrap"></TextBox>
+            </ScrollViewer>
+            <Button Margin="5,0" Grid.Row="0" Grid.Column="1" Height="Auto">Send</Button>
+        </Grid>
+    </Grid>
+</Window>
