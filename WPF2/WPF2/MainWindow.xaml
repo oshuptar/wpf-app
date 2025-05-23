@@ -5,14 +5,16 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WPF2"
         mc:Ignorable="d"
-        Title="MainWindow" Height="480" Width="800"
-        MinWidth="420" MinHeight="240"
+        Title="MainWindow" Height="800" Width="480"
+        MinWidth="240" MinHeight="420"
         WindowStartupLocation="CenterScreen">
+
     <Window.Resources>
         <Style x:Key="MessageText" TargetType="TextBlock">
             <Setter Property="Foreground" Value="White"/>
         </Style>
-        <Style x:Key="MessageListViewStyle" TargetType="ListViewItem">
+
+        <Style x:Key="ClientMessageStyle" TargetType="ListViewItem">
             <Setter Property="VerticalAlignment" Value="Top"></Setter>
             <Style.Triggers>
                 <Trigger Property="ItemsControl.AlternationIndex" Value="0">
@@ -23,33 +25,72 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <Style x:Key="SystemMessageStyle" TargetType="ListViewItem">
+            <Setter Property="VerticalAlignment" Value="Top"></Setter>
+            <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+        </Style>
+
         <Style x:Key="TimestampStyle" TargetType="TextBlock">
             <Setter Property="Foreground" Value="Gray"/>
             <Setter Property="FontSize" Value="5"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
-
-            <!--Style.Triggers>
-                <DataTrigger Binding="{Binding Timestamp} Value >
-                </DataTrigger> 
-            </Style.Triggers-->
+            <Setter Property="FontWeight" Value="Bold"/>
         </Style>
-        <DataTemplate x:Key="MessageBubbleTemplate" DataType="ListViewItem">
+
+        <DataTemplate x:Key="ClientMessageTemplate" DataType="ListViewItem">
             <Border Background="DarkOrange" CornerRadius="8" 
-                    Width="Auto" Height="Auto">
-                <StackPanel Orientation="Horizontal">
-                    <!--TextBlock FontWeight="Bold" Text="{Binding User.Username}"></TextBlock-->
+                    Margin="20, 2"
+                    HorizontalAlignment="Stretch">
+                <StackPanel Orientation="Vertical">
+                    <TextBlock FontWeight="Bold" 
+                               Style="{StaticResource ResourceKey=MessageText}"
+                               Text="{Binding Sender.Username}"
+                               Margin="4,2">
+                    </TextBlock>
                     <TextBlock Style="{StaticResource ResourceKey=MessageText}"
                                HorizontalAlignment="Center"
-                               Text="{Binding MessageContent}"></TextBlock>
-                    <!--TextBlock Style="{StaticResource ResourceKey=TimestampStyle}" Text="{Binding MessageTime}"></TextBlock-->
+                               Text="{Binding MessageContent}"
+                               Margin="4,2"
+                               TextWrapping="Wrap">
+                    </TextBlock>
+                    <TextBlock Style="{StaticResource ResourceKey=TimestampStyle}"
+                               Text="{Binding Timestamp}"
+                               Margin="4,2">
+                    </TextBlock>
                 </StackPanel>
             </Border>
         </DataTemplate>
+
+        <DataTemplate x:Key="SystemMessageTemplate" DataType="ListViewItem">
+            <TextBlock Foreground="DarkGray" FontWeight="Bold">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Text" Value="Status Unknown"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Sender.Status}" Value="true">
+                                <Setter Property="Text" Value="Connected"></Setter>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding Sender.Status}" Value="false">
+                                <Setter Property="Text" Value="Disconnected"></Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </DataTemplate>
+
+        <local:MessageDataTemplateSelector x:Key="MessageDataTemplateSelector"
+        ClientMessageTemplate="{StaticResource ClientMessageTemplate}"
+        SystemMessageTemplate="{StaticResource SystemMessageTemplate}"/>
+        <local:MessageStyleSelector x:Key="MessageStyleSelector"
+         ClientMessageStyle="{StaticResource ClientMessageStyle}"  
+         SystemMessageStyle="{StaticResource SystemMessageStyle}"/>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="Auto"></RowDefinition>
         </Grid.RowDefinitions>
         <Menu Grid.Row="0">
@@ -62,17 +103,15 @@
                 <MenuItem Header="About" Click="Show_MessageBox"></MenuItem>
             </MenuItem>
         </Menu>
-        <StackPanel Grid.Row="1" Orientation="Vertical">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <ListView Grid.Row="1"
-                          HorizontalContentAlignment="Center"
+        <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1">
+            <ListView     Grid.Row="1"
+                          HorizontalContentAlignment="Stretch"
                           ItemsSource="{Binding Messages}"
-                          ItemTemplate="{StaticResource ResourceKey=MessageBubbleTemplate}"
-                          AlternationCount="2"
-                          ItemContainerStyle="{StaticResource ResourceKey=MessageListViewStyle}">
-                </ListView>
-            </ScrollViewer>
-        </StackPanel>
+                          ItemTemplateSelector="{StaticResource ResourceKey=MessageDataTemplateSelector}"
+                          ItemContainerStyleSelector="{StaticResource ResourceKey=MessageStyleSelector}"
+                          AlternationCount="2">
+            </ListView>
+        </ScrollViewer>
         <Grid Grid.Row="2" Margin="0,0,0,2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto">
@@ -82,11 +121,15 @@
                 <ColumnDefinition Width="7*"></ColumnDefinition>
                 <ColumnDefinition Width="1*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <ScrollViewer Margin="5,0,0,0" Grid.Row="0" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
+            <ScrollViewer Margin="10" Grid.Row="0" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
                 <TextBox Name ="InputTextBox" Height="Auto" TextWrapping="Wrap" AcceptsReturn="True" PreviewKeyDown="KeyDownHandler">
                 </TextBox>
             </ScrollViewer>
-            <Button Margin="5,0" Grid.Row="0" Grid.Column="1" Height="Auto">Send</Button>
+            <Button Margin="0,10,10,10"
+                    Grid.Row="0"
+                    Grid.Column="1"
+                    Height="Auto"
+                    Click="SendMessage">Send</Button>
         </Grid>
     </Grid>
 </Window>

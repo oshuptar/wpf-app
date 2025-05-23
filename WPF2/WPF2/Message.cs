@@ -8,6 +8,7 @@ namespace WPF2;
 
 public class Message
 {
+    public bool IsSystemMessage { get; set; }
     public string MessageContent {  get; set; }
     public User? Sender { get; set; }
     public DateTime Timestamp { get; set; } 
@@ -17,8 +18,10 @@ public class Message
         MessageContent = messageContent;
         Sender = sender;
     }
-    public Message(string messageContent)
+    public Message(bool isSystemMessage, string messageContent, User? sender)
     {
+        IsSystemMessage = isSystemMessage;
         MessageContent = messageContent;
+        Sender = sender;
     }
 }

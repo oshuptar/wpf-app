@@ -18,7 +18,8 @@ namespace WPF2
     /// </summary>
     public partial class MainWindow : Window
     {
-        //User User = new User();
+        User User1 = new User(false, "User1");
+        User User2 = new User(false, "User2");
         public ObservableCollection<Message> Messages { get; private set; } = new ObservableCollection<Message>();
         //ICommand SendMessageCommand = new SendMessageCommand();
         //ICommand NewLineCommand = new NewLineCommand();
@@ -26,28 +27,29 @@ namespace WPF2
         {
             InitializeComponent();
             DataContext = this;
-            Messages.Add(new Message("New message"));
+            Messages.Add(new Message("Hello, try to respond me", User1));
+            Messages.Add(new Message("Here is the response!", User2));
         }
 
         private void User_Connect(object sender, RoutedEventArgs e)
         {
-            //User.Status = true;
+            User2.Status = true;
             ConnectMenuItem.IsEnabled = false;
             DisconnectMenuItem.IsEnabled = true;
+            Messages.Add(new Message(true, "", User2));
         }
 
         private void Show_MessageBox(object sender, RoutedEventArgs e)
         {
             MessageBox.Show("This is a Group Chat Client!", "Group Chat", MessageBoxButton.OK, MessageBoxImage.Information);
         }
-
         private void User_Disconnect(object sender, RoutedEventArgs e)
         {
-            //User.Status = false;
+            User2.Status = false;
             DisconnectMenuItem.IsEnabled = false;
             ConnectMenuItem.IsEnabled = true;
+            Messages.Add(new Message(true, "", User2));
         }
-
         private void App_Exit(object sender, RoutedEventArgs e)
         {
             Close();
@@ -63,28 +65,17 @@ namespace WPF2
             else if (e.Key == Key.Enter && e.KeyboardDevice.Modifiers == ModifierKeys.None)
             {
                 e.Handled = true;
-                Messages.Add(new Message(InputTextBox.Text));
-                InputTextBox.Text = string.Empty;
+                SendMessage(this, new RoutedEventArgs());
             }
         }
 
-        private void HandleKeyDown(object sender, KeyEventArgs e)
+        private void SendMessage(object sender, RoutedEventArgs e)
         {
-
-        }
-
-        public bool CanExecute(object? parameter)
-        {
-            return true;
-        }
-
-        public void ExecuteSendMessage(object? parameter)
-        {
-
-        }
-
-        public void AddNewLine(object? parameter)
-        { 
+            if(Messages.Count % 2 == 0)
+                Messages.Add(new Message(InputTextBox.Text, User1));
+            else
+                Messages.Add(new Message(InputTextBox.Text, User2));
+            InputTextBox.Text = string.Empty;
         }
     }
 }
