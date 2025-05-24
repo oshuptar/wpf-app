@@ -1,6 +1,10 @@
 ﻿using System.Collections.ObjectModel;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
 using System.Security.Policy;
 using System.Text;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -20,6 +24,7 @@ namespace WPF2
     public partial class MainWindow : Window
     {
         private bool MessageTurn { get; set; } = false;
+        public ClientConnection ClientConnection { get; private set; } = new ClientConnection();
 
         public DispatcherTimer dispatcherTimer = new DispatcherTimer();
         public User User1 { get; private set; } = new User(false, "User1");
@@ -47,10 +52,13 @@ namespace WPF2
 
         private void User_Connect(object sender, RoutedEventArgs e)
         {
-            Client.Status = true;
-            ConnectMenuItem.IsEnabled = false;
-            DisconnectMenuItem.IsEnabled = true;
-            Messages.Add(new Message(Client, Client.Equals(Client), true, ""));
+            //Client.Status = true;
+            //ConnectMenuItem.IsEnabled = false;
+            //DisconnectMenuItem.IsEnabled = true;
+            //Messages.Add(new Message(Client, Client.Equals(Client), true, ""));
+            Window ConnectDialogWindow = new ConnectDialogWindow(this);
+            bool? result = ConnectDialogWindow.ShowDialog();
+            //if(Resul)
         }
 
         private void Show_MessageBox(object sender, RoutedEventArgs e)

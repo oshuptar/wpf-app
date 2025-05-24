@@ -12,10 +12,14 @@
     <Window.Resources>
         <Style x:Key="MessageText" TargetType="TextBlock">
             <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="IsHitTestVisible" Value="True"/>
         </Style>
 
         <Style x:Key="ClientMessageStyle" TargetType="ListViewItem">
+            <Setter Property="Focusable" Value="False"></Setter>
             <Setter Property="VerticalAlignment" Value="Top"></Setter>
+            <Setter Property="IsHitTestVisible" Value="False"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsFromClient}" Value="false">
                     <Setter Property="HorizontalAlignment" Value="Left"/>
@@ -27,8 +31,10 @@
         </Style>
 
         <Style x:Key="SystemMessageStyle" TargetType="ListViewItem">
+            <Setter Property="Focusable" Value="False"></Setter>
             <Setter Property="VerticalAlignment" Value="Top"></Setter>
             <Setter Property="HorizontalAlignment" Value="Center"></Setter>
+            <Setter Property="IsHitTestVisible" Value="False"/>
         </Style>
 
         <Style x:Key="TimestampStyle" TargetType="TextBlock">
@@ -110,7 +116,9 @@
                           ItemsSource="{Binding Messages}"
                           ItemTemplateSelector="{StaticResource ResourceKey=MessageDataTemplateSelector}"
                           ItemContainerStyleSelector="{StaticResource ResourceKey=MessageStyleSelector}"
-                          AlternationCount="2">
+                          AlternationCount="2"
+                          Focusable="False"
+                          BorderThickness="0">
             </ListView>
         </ScrollViewer>
         <Grid Grid.Row="2" Margin="0,0,0,2">
@@ -119,8 +127,8 @@
                 </RowDefinition>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="7*"></ColumnDefinition>
-                <ColumnDefinition Width="1*"></ColumnDefinition>
+                <ColumnDefinition Width="6*"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <ScrollViewer Margin="10" Grid.Row="0" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
                 <TextBox Name ="InputTextBox" Height="Auto" TextWrapping="Wrap" AcceptsReturn="True" PreviewKeyDown="KeyDownHandler">
@@ -134,11 +142,3 @@
         </Grid>
     </Grid>
 </Window>
-
-<!--TextBox.InputBindings>
-    <KeyBinding Command="{Binding SendMessageCommand}"
-         Key="Return" />
-    <KeyBinding Command="{Binding NewLineCommand}"
-         Key="Return" 
-         Modifiers="Shift"/>
-</TextBox.InputBindings-->
