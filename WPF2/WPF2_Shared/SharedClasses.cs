@@ -9,7 +9,6 @@ public class User
     public bool IsAuthorised { get; set; } = false;
     [JsonInclude]
     public string Username { get; set; }
-
     public User() { }
     public User(bool isAuthorised, string username)
     {
@@ -138,16 +137,19 @@ public class ConnectResponse : Response
 public class SendMessageResponse : Response
 {
     [JsonInclude]
+    public bool IsSystemMessage { get; set; }
+    [JsonInclude]
     public string Message { get; protected set; }
     public SendMessageResponse() : base() { }
-    public SendMessageResponse(User user, string message) : base(user)
+    public SendMessageResponse(User? user, string message, bool isSystemMessage) : base(user)
     {
         ResponseType = ResponseType.SendMessage;
         Message = message;
+        IsSystemMessage = isSystemMessage;
     }
     public override Message CreateMessage()
     {
-        return new Message(User, false, Message, Timestamp);
+        return new Message(User, IsSystemMessage, Message, Timestamp);
     }
 }
 

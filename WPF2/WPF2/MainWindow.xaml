@@ -70,18 +70,12 @@
         </DataTemplate>
 
         <DataTemplate x:Key="SystemMessageTemplate" DataType="ListViewItem">
-            <TextBlock Foreground="DarkGray" FontWeight="Bold" Margin="4,2">
+            <TextBlock Foreground="DarkGray" FontWeight="Bold" Margin="4,2" TextWrapping="Wrap"
+                       MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Path=ActualWidth}"
+                       TextAlignment="Center">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
                         <Setter Property="Text" Value="{Binding MessageContent}"/>
-                        <!--Style.Triggers>
-                            <DataTrigger Binding="{Binding Sender.Status}" Value="true">
-                                <Setter Property="Text" Value="{Binding MessageContent}"></Setter>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding Sender.Status}" Value="false">
-                                <Setter Property="Text" Value="{Binding MessageContent}"></Setter>
-                            </DataTrigger>
-                        </Style.Triggers-->
                     </Style>
                 </TextBlock.Style>
             </TextBlock>
@@ -110,17 +104,17 @@
                 <MenuItem Header="About" Click="Show_MessageBox"></MenuItem>
             </MenuItem>
         </Menu>
-        <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1">
-            <ListView     Grid.Row="1"
+        <ListView     Grid.Row="1"
                           HorizontalContentAlignment="Stretch"
                           ItemsSource="{Binding Messages}"
                           ItemTemplateSelector="{StaticResource ResourceKey=MessageDataTemplateSelector}"
                           ItemContainerStyleSelector="{StaticResource ResourceKey=MessageStyleSelector}"
                           AlternationCount="2"
                           Focusable="False"
-                          BorderThickness="0">
-            </ListView>
-        </ScrollViewer>
+                          BorderThickness="0"
+                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                          ScrollViewer.VerticalScrollBarVisibility="Auto">
+        </ListView>
         <Grid Grid.Row="2" Margin="0,0,0,2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto">
@@ -130,7 +124,7 @@
                 <ColumnDefinition Width="6*"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <ScrollViewer Margin="10" Grid.Row="0" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
+            <ScrollViewer Margin="10" Grid.Row="0" Grid.Column="0"  VerticalScrollBarVisibility="Disabled" HorizontalScrollBarVisibility="Disabled">
                 <TextBox Name ="InputTextBox" Height="Auto" TextWrapping="Wrap" AcceptsReturn="True" PreviewKeyDown="KeyDownHandler" MaxHeight="100">
                 </TextBox>
             </ScrollViewer>

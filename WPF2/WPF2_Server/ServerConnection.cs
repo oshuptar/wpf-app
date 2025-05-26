@@ -187,7 +187,7 @@ public class ServerConnection : INotifyPropertyChanged
                 {
                     SendMessageRequest sendMessageRequest = (SendMessageRequest)request;
                     if (!Clients.TryGetValue(request.Username, out var context)) return;
-                    SendMessageResponse sendMessageResponse = new SendMessageResponse(context.User, sendMessageRequest.Message);
+                    SendMessageResponse sendMessageResponse = new SendMessageResponse(context.User, sendMessageRequest.Message, false);
                     await BroadcastResponse(cancellationToken, sendMessageResponse, sendMessageRequest.Username);
                     await SendResponseAsync(cancellationToken, context.Channel, sendMessageResponse);
                     break;
@@ -241,7 +241,7 @@ public class ServerConnection : INotifyPropertyChanged
         }
     }
 
-    public async Task BroadcastResponse(CancellationToken cancellationToken, Response response, string senderUsername)
+    public async Task BroadcastResponse(CancellationToken cancellationToken, Response response, string? senderUsername)
     {
         List<Task> tasks = new List<Task>();
         var clients = Clients.Values.Where(c => c.User.Username != senderUsername).ToList();

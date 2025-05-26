@@ -41,13 +41,23 @@ namespace WPF2_Server
             else if (e.Key == Key.Enter && e.KeyboardDevice.Modifiers == ModifierKeys.None)
             {
                 e.Handled = true;
-                //SendMessage(this, new RoutedEventArgs());
+                SendMessage(this, new RoutedEventArgs());
             }
         }
 
-        private void SendMessage(object sender, RoutedEventArgs e)
+        private async void SendMessage(object sender, RoutedEventArgs e)
         {
-
+            try
+            {
+                string message = InputTextBox.Text;
+                if (!string.IsNullOrEmpty(message))
+                    await ServerConnection.BroadcastResponse(ServerConnection.Cts.Token, new SendMessageResponse(null, message, true), null);
+                InputTextBox.Text = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error occurred:" + ex.Message, "Error!", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private async void StartServer(object sender, RoutedEventArgs e)

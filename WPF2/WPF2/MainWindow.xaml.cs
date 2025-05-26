@@ -101,7 +101,6 @@ namespace WPF2
                 SendMessage(this, new RoutedEventArgs());
             }
         }
-
         private async void SendMessage(object sender, RoutedEventArgs e)
         {
             try
