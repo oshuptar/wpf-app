@@ -15,6 +15,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using WPF2_Shared;
 
 namespace WPF2
 {
@@ -23,21 +24,14 @@ namespace WPF2
     /// </summary>
     public partial class MainWindow : Window
     {
-        private bool MessageTurn { get; set; } = false;
-        public ClientConnection ClientConnection { get; private set; } = new ClientConnection();
-
+        public ClientConnection ClientConnection { get; private set; }
         public DispatcherTimer dispatcherTimer = new DispatcherTimer();
-        public User User1 { get; private set; } = new User(false, "User1");
-        public User Client { get; private set; } = new User(false, "Client");
         public ObservableCollection<Message> Messages { get; private set; } = new ObservableCollection<Message>();
-        //ICommand SendMessageCommand = new SendMessageCommand();
-        //ICommand NewLineCommand = new NewLineCommand();
         public MainWindow()
         {
             InitializeComponent();
+            ClientConnection = new ClientConnection(this);
             DataContext = this;
-            Messages.Add(new Message(User1, User1.Equals(Client),false ,"Hello! How are you?"));
-            Messages.Add(new Message(Client, Client.Equals(Client), false, "Hello, good! What a nice day!"));
             dispatcherTimer.Tick += DispatcherTimer_Tick;
             dispatcherTimer.Interval = TimeSpan.FromMinutes(1);
             dispatcherTimer.Start();
@@ -49,31 +43,48 @@ namespace WPF2
                 message.UpdateTimestampDisplay();
             }
         }
-
-        private void User_Connect(object sender, RoutedEventArgs e)
+        private async void User_Connect(object sender, RoutedEventArgs e)
         {
-            //Client.Status = true;
-            //ConnectMenuItem.IsEnabled = false;
-            //DisconnectMenuItem.IsEnabled = true;
-            //Messages.Add(new Message(Client, Client.Equals(Client), true, ""));
-            Window ConnectDialogWindow = new ConnectDialogWindow(this);
+            ConnectDialogWindow ConnectDialogWindow = new ConnectDialogWindow(this);
             bool? result = ConnectDialogWindow.ShowDialog();
-            //if(Resul)
+            if(result != null && result.Value)
+            {
+                User_Connect();
+                try
+                {
+                    await ClientConnection.ClientStartListen();
+                }
+                catch (IOException)
+                {
+                    //MessageBox.Show("Error occurred: the connection is closed", "Error!", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error occurred:" + ex.Message, "Error!", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
         }
-
-        private void Show_MessageBox(object sender, RoutedEventArgs e)
+        public void User_Connect()
         {
-            MessageBox.Show("This is a Group Chat Client!", "Group Chat", MessageBoxButton.OK, MessageBoxImage.Information);
+            Dispatcher.Invoke(() => {
+                ConnectMenuItem.IsEnabled = false;
+                DisconnectMenuItem.IsEnabled = true;
+            } );
         }
-        private void User_Disconnect(object sender, RoutedEventArgs e)
+        public void User_Disconnect()
         {
-            Client.Status = false;
-            DisconnectMenuItem.IsEnabled = false;
-            ConnectMenuItem.IsEnabled = true;
-            Messages.Add(new Message(null, Client.Equals(Client), true, ""));
+            Dispatcher.Invoke(() => {
+                DisconnectMenuItem.IsEnabled = false;
+                ConnectMenuItem.IsEnabled = true;
+            });
         }
-        private void App_Exit(object sender, RoutedEventArgs e)
+        private async void User_Disconnect(object sender, RoutedEventArgs e)
         {
+            await ClientConnection.ClientDisconnect();
+        }
+        private async void App_Exit(object sender, RoutedEventArgs e)
+        {
+            await ClientConnection.ClientDisconnect();
             Close();
         }
         private void KeyDownHandler(object sender, KeyEventArgs e)
@@ -91,14 +102,34 @@ namespace WPF2
             }
         }
 
-        private void SendMessage(object sender, RoutedEventArgs e)
+        private async void SendMessage(object sender, RoutedEventArgs e)
         {
-            if (!MessageTurn)
-                Messages.Add(new Message(User1, User1.Equals(Client), false, InputTextBox.Text));
-            else
-                Messages.Add(new Message(Client, Client.Equals(Client), false, InputTextBox.Text));
-            MessageTurn = !MessageTurn;
-            InputTextBox.Text = string.Empty;
+            try
+            {
+                string message = InputTextBox.Text;
+                if (!string.IsNullOrEmpty(message))
+                    await ClientConnection.SendMessage(message);
+                InputTextBox.Text = string.Empty;
+            }
+            catch (Exception ex) 
+            {
+                MessageBox.Show("Error occurred:" + ex.Message, "Error!", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        public void AddMessage(Message message)
+        {
+            Dispatcher.Invoke(() => {
+                if (!message.IsSystemMessage && message.Sender?.Username == ClientConnection.Client.Username)
+                    message.IsFromClient = true;
+                else
+                    message.IsFromClient = false;
+                Messages.Add(message);
+            });
+        }
+        private void Show_MessageBox(object sender, RoutedEventArgs e)
+        {
+            MessageBox.Show("This is a Group Chat Client!", "Group Chat", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }

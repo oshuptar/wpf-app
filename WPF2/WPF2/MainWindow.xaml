@@ -73,15 +73,15 @@
             <TextBlock Foreground="DarkGray" FontWeight="Bold" Margin="4,2">
                 <TextBlock.Style>
                     <Style TargetType="TextBlock">
-                        <Setter Property="Text" Value="Status Unknown"/>
-                        <Style.Triggers>
+                        <Setter Property="Text" Value="{Binding MessageContent}"/>
+                        <!--Style.Triggers>
                             <DataTrigger Binding="{Binding Sender.Status}" Value="true">
-                                <Setter Property="Text" Value="Connected"></Setter>
+                                <Setter Property="Text" Value="{Binding MessageContent}"></Setter>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding Sender.Status}" Value="false">
-                                <Setter Property="Text" Value="Disconnected"></Setter>
+                                <Setter Property="Text" Value="{Binding MessageContent}"></Setter>
                             </DataTrigger>
-                        </Style.Triggers>
+                        </Style.Triggers-->
                     </Style>
                 </TextBlock.Style>
             </TextBlock>
@@ -131,7 +131,7 @@
                 <ColumnDefinition Width="*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <ScrollViewer Margin="10" Grid.Row="0" Grid.Column="0" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
-                <TextBox Name ="InputTextBox" Height="Auto" TextWrapping="Wrap" AcceptsReturn="True" PreviewKeyDown="KeyDownHandler">
+                <TextBox Name ="InputTextBox" Height="Auto" TextWrapping="Wrap" AcceptsReturn="True" PreviewKeyDown="KeyDownHandler" MaxHeight="100">
                 </TextBox>
             </ScrollViewer>
             <Button Margin="0,10,10,10"

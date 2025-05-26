@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using WPF2_Shared;
 
 namespace WPF2
-{
-
+{ 
     public class MessageStyleSelector : StyleSelector
     {
         public Style? ClientMessageStyle { get; set; }
