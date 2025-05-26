@@ -10,7 +10,13 @@
         WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <DataTemplate x:Key="LoggedUsersTemplate"  DataType="ListViewItem">
-            <TextBlock HorizontalAlignment="Center" FontWeight="Bold" Text="{Binding Username}"></TextBlock>
+            <TextBlock HorizontalAlignment="Center" FontWeight="Bold" Text="{Binding Username}"
+                       MaxWidth="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListViewItem}, Path=ActualWidth}"
+                       ></TextBlock>
+        </DataTemplate>
+        <DataTemplate x:Key="ServerLogTemplate"  DataType="ListViewItem">
+            <TextBlock HorizontalAlignment="Left" Text="{Binding Message}"
+                       TextWrapping="Wrap"></TextBlock>
         </DataTemplate>
     </Window.Resources>
     <Grid>
@@ -89,7 +95,10 @@
         </GroupBox>
         <ListView Grid.Row="1" Grid.Column="0"
                   Margin="10"
-                  ItemsSource="{Binding Messages}"></ListView>
+                  ItemsSource="{Binding ServerLogs}"
+                  ItemTemplate="{StaticResource ServerLogTemplate}"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                  ScrollViewer.VerticalScrollBarVisibility="Auto"></ListView>
         <Grid Grid.Row="2" Grid.Column="0" Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" MaxHeight="100">
@@ -113,7 +122,8 @@
             <ListView x:Name="ClientListView"
                   SelectionMode="Multiple"
                   HorizontalContentAlignment="Stretch"
-                  ItemsSource="{Binding Users}">
+                  ItemsSource="{Binding Users}"
+                  ItemTemplate="{StaticResource LoggedUsersTemplate}">
                 <ListView.View>
                     <GridView AllowsColumnReorder="False">
                         <GridView.Columns>

@@ -47,7 +47,7 @@ public class ClientContext
 public class ServerConnection : INotifyPropertyChanged
 {
     public ConcurrentDictionary<string, ClientContext> Clients { get; set; } = new ConcurrentDictionary<string, ClientContext>();
-    public CancellationTokenSource Cts { get; private set; }
+    public CancellationTokenSource? Cts { get; private set; } = new CancellationTokenSource();
 
     private bool _isRunning = false;
     public bool IsRunning
@@ -79,7 +79,7 @@ public class ServerConnection : INotifyPropertyChanged
     {
         try
         {
-            Cts = new CancellationTokenSource();
+            //Cts = new CancellationTokenSource();
             Listener = new TcpListener(ipAddress, port);
             Listener.Start();
             IsRunning = true;
@@ -121,6 +121,7 @@ public class ServerConnection : INotifyPropertyChanged
             }
             catch (OperationCanceledException)
             {
+                MainWindow.AddServerLog(new ServerLog("Operation is cancelled", "Server", DateTime.Now));
                 break;
             }
             catch (Exception) { throw; }
@@ -190,6 +191,7 @@ public class ServerConnection : INotifyPropertyChanged
                     SendMessageResponse sendMessageResponse = new SendMessageResponse(context.User, sendMessageRequest.Message, false);
                     await BroadcastResponse(cancellationToken, sendMessageResponse, sendMessageRequest.Username);
                     await SendResponseAsync(cancellationToken, context.Channel, sendMessageResponse);
+                    MainWindow.AddServerLog(new ServerLog(sendMessageRequest.Username + $": {sendMessageRequest.Message}", "Server", DateTime.Now));
                     break;
                 }
         }
@@ -297,6 +299,7 @@ public class ServerConnection : INotifyPropertyChanged
                 if (!result)
                 {
                     await SendResponseAsync(cancellationToken, channel, new ConnectResponse(null, false, "User with the same username already exists"));
+                    MainWindow.AddServerLog(new ServerLog(connectRequest.Username + " failed to log in: the username already exists", "Server", DateTime.Now));
                     channel.TcpClient.Close();
                     channel.TcpClient.Dispose();
                     return (false, null);
@@ -305,10 +308,15 @@ public class ServerConnection : INotifyPropertyChanged
                 ConnectResponse connectResponse = new ConnectResponse(user, true, "");
                 await SendResponseAsync(cancellationToken, channel, connectResponse);
                 await BroadcastResponse(cancellationToken, connectResponse, user.Username);
+                MainWindow.AddServerLog(new ServerLog(connectRequest.Username + " logged in successfully", "Server", DateTime.Now));
                 return (true, clientContext);
             }
             else
+            {
                 await SendResponseAsync(cancellationToken, channel, new ConnectResponse(null, false, "Invalid credentials"));
+                MainWindow.AddServerLog(new ServerLog(connectRequest.Username + " failed to log in: invalid credentials", "Server", DateTime.Now));
+                return (false, null);
+            }
         }
         catch (SocketException)
         {
@@ -333,6 +341,7 @@ public class ServerConnection : INotifyPropertyChanged
             channel.TcpClient.Dispose();
             // Perform logging
         }
+        MainWindow.AddServerLog(new ServerLog("Exception occurred during authorization", "Server", DateTime.Now));
         return (false, null);
     }
 
@@ -367,6 +376,7 @@ public class ServerConnection : INotifyPropertyChanged
                 client.Channel.TcpClient.Dispose();
                 MainWindow.RemoveUser(username);
                 await BroadcastResponse(Cts.Token, new DisconnectResponse(client.User), client.User.Username);
+                MainWindow.AddServerLog(new ServerLog(username + " disconnected", "Server", DateTime.Now));
             }
             finally
             {

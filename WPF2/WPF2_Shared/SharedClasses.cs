@@ -3,6 +3,21 @@ using System.Text.Json.Serialization;
 
 namespace WPF2_Shared;
 
+public class ServerLog
+{
+    public string Message { get; }
+    public string MessageContent { get; set; }
+    public string Sender { get; set; }
+    public DateTime Timestamp { get; set; }
+    public ServerLog(string messageContent, string sender, DateTime timeStamp)
+    {
+        MessageContent = messageContent;
+        Sender = sender;
+        Timestamp = timeStamp;
+        Message = $"[{Timestamp.ToString("dd/MM/yyyy HH:mm:ss")}] - {sender}: {messageContent}";
+    }
+}
+
 public class User
 {
     [JsonInclude]

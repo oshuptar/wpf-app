@@ -20,9 +20,9 @@ namespace WPF2_Server
     /// </summary>
     public partial class MainWindow : Window
     {
-        public ObservableCollection<Message> Messages { get; private set; } = new ObservableCollection<Message>();
+        public ObservableCollection<ServerLog> ServerLogs { get; private set; } = new ObservableCollection<ServerLog>();
         public ObservableCollection<User> Users { get; private set; } = new ObservableCollection<User>();
-        public ServerConnection ServerConnection { get; private set; } 
+        public ServerConnection ServerConnection { get; private set; }
         public MainWindow()
         {
             ServerConnection = new ServerConnection(this);
@@ -51,7 +51,10 @@ namespace WPF2_Server
             {
                 string message = InputTextBox.Text;
                 if (!string.IsNullOrEmpty(message))
+                {
                     await ServerConnection.BroadcastResponse(ServerConnection.Cts.Token, new SendMessageResponse(null, message, true), null);
+                    ServerLogs.Add(new ServerLog($"{message}", "Server", DateTime.Now));
+                }
                 InputTextBox.Text = string.Empty;
             }
             catch (Exception ex)
@@ -59,11 +62,17 @@ namespace WPF2_Server
                 MessageBox.Show("Error occurred:" + ex.Message, "Error!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-
+        public void AddServerLog(ServerLog log)
+        {
+            Dispatcher.Invoke(() => ServerLogs.Add(log));
+        }
         private async void StartServer(object sender, RoutedEventArgs e)
         {
             if (ServerConnection.IsRunning)
+            {
                 await ServerConnection.ServerStop();
+                AddServerLog(new ServerLog("Server stopped", "Server", DateTime.Now));
+            }
             else
             {
                 try
@@ -75,14 +84,17 @@ namespace WPF2_Server
                         throw new Exception("Port number must be between 1300 and 65535.");
 
                     await ServerConnection.StartServer(ipAddress, portNumber);
+                    AddServerLog(new ServerLog($"Server started listening {ipAddress.ToString()}:{portNumber}", "Server", DateTime.Now));
                 }
                 catch (SocketException ex)
                 {
                     MessageBox.Show($"Socket error: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    AddServerLog(new ServerLog($"Exception occurred: {ex.Message}", "Server", DateTime.Now));
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show($"An error occurred: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    AddServerLog(new ServerLog($"Exception occurred: {ex.Message}", "Server", DateTime.Now));
                 }
             }
         }
@@ -114,6 +126,7 @@ namespace WPF2_Server
                 tasks.Add(ServerConnection.RemoveClient(user.Username));
             }
             await Task.WhenAll(tasks);
+            AddServerLog(new ServerLog($"Kicked {selectedUsers.Count} user(s)", "Server", DateTime.Now));
             ClientListView.SelectedItems.Clear();
         }
     }
