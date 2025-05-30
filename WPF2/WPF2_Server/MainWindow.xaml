@@ -75,7 +75,8 @@
                         <TextBox Name="PortTextBox" Grid.Row="1" Margin="5,5,0,5"></TextBox>
                     </Grid>
                 </Grid>
-                <Button Height="Auto"
+                <Button Name="StartServerButton"
+                    Height="Auto"
                         HorizontalAlignment="Right"
                         Width="100" Click="StartServer">
                     <Button.Style>

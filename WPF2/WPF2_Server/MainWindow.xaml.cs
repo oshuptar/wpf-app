@@ -70,7 +70,9 @@ namespace WPF2_Server
         {
             if (ServerConnection.IsRunning)
             {
+                //StartServerButton.IsEnabled = false;
                 await ServerConnection.ServerStop();
+                //StartServerButton.IsEnabled = true;
                 AddServerLog(new ServerLog("Server stopped", "Server", DateTime.Now));
             }
             else
@@ -83,8 +85,10 @@ namespace WPF2_Server
                     if (portNumber < 1300 || portNumber > 65535)
                         throw new Exception("Port number must be between 1300 and 65535.");
 
-                    await ServerConnection.StartServer(ipAddress, portNumber);
+                    //StartServerButton.IsEnabled = false;
                     AddServerLog(new ServerLog($"Server started listening {ipAddress.ToString()}:{portNumber}", "Server", DateTime.Now));
+                    await ServerConnection.StartServer(ipAddress, portNumber);
+                    //StartServerButton.IsEnabled = true;
                 }
                 catch (SocketException ex)
                 {

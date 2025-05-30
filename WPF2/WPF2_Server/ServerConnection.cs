@@ -79,7 +79,8 @@ public class ServerConnection : INotifyPropertyChanged
     {
         try
         {
-            //Cts = new CancellationTokenSource();
+            if (IsRunning) return;
+            Cts = new CancellationTokenSource();
             Listener = new TcpListener(ipAddress, port);
             Listener.Start();
             IsRunning = true;
